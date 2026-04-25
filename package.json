@@ -11,6 +11,14 @@
     "cli"
   ],
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MarcosCamara01/sdd-protocol.git"
+  },
+  "homepage": "https://github.com/MarcosCamara01/sdd-protocol#readme",
+  "bugs": {
+    "url": "https://github.com/MarcosCamara01/sdd-protocol/issues"
+  },
   "bin": {
     "sdd-protocol": "dist/cli.js"
   },
