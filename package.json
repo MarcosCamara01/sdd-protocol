@@ -1,0 +1,37 @@
+{
+  "name": "sdd-protocol",
+  "version": "0.3.1",
+  "description": "Spec-Driven Development CLI — installs an SDD system in any project",
+  "keywords": [
+    "sdd",
+    "spec-driven",
+    "ai",
+    "claude",
+    "cursor",
+    "cli"
+  ],
+  "license": "MIT",
+  "bin": {
+    "sdd-protocol": "dist/cli.js"
+  },
+  "files": [
+    "dist/",
+    "templates/"
+  ],
+  "scripts": {
+    "build": "tsup && chmod +x dist/cli.js",
+    "dev": "tsup --watch",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "commander": "^12.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsup": "^8.3.0",
+    "typescript": "^5.6.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
