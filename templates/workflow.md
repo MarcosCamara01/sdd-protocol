@@ -9,10 +9,10 @@ Read it before starting any task.
 
 These rules apply to every command. They are not suggestions.
 
-1. **Surface assumptions** — before writing code, state what you're assuming. If something is unclear, stop and ask. Do not pick an interpretation silently.
-2. **Minimum code** — implement only what was asked. No extra abstractions, no "while I'm here" cleanups, no speculative flexibility.
-3. **Surgical changes** — touch only the lines the task requires. Do not reformat, rename, or refactor adjacent code.
-4. **Verify before moving on** — define what "done" looks like before you start a task. A task isn't done until its verification passes.
+1. **Surface assumptions** — before writing code, state what you're assuming. If something is unclear, stop and ask. Do not pick an interpretation silently. If a simpler approach exists, say so — push back when warranted.
+2. **Minimum code** — implement only what was asked. No extra abstractions, no "while I'm here" cleanups, no speculative flexibility, no error handling for impossible scenarios. Ask: "Would a senior engineer say this is overcomplicated?" If yes, simplify.
+3. **Surgical changes** — touch only the lines the task requires. Do not reformat, rename, or refactor adjacent code. Match existing style, even if you'd do it differently. Remove imports, variables, and functions that *your* changes made unused — do not remove pre-existing dead code unless asked. Test: every changed line should trace directly to the user's request.
+4. **Verify before moving on** — define what "done" looks like before you start. Transform vague tasks into verifiable goals: "Fix the bug" → "Write a test that reproduces it, then make it pass." Strong success criteria let you loop independently without constant clarification. A task isn't done until its verification passes.
 
 ---
 
@@ -209,6 +209,7 @@ Checks:
 - Conventions in `.sdd/conventions.md` are followed
 - No out-of-scope changes were introduced
 - No speculative features, unused abstractions, or "just in case" code
+- Every changed line traces directly to the user's request — if not, explain why
 - The implementation is the simplest one that satisfies the requirements — if it's more complex, justify it
 
 ---

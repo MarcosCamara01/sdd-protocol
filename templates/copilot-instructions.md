@@ -25,9 +25,9 @@ Use these slash commands in Copilot Chat (type `/` to see them):
 
 ## Execution principles
 
-1. Surface assumptions before acting — never pick an interpretation silently
-2. Minimum code — only what was asked
-3. Surgical changes — touch only what the task requires
-4. Verify before moving on — define "done" before starting
+1. Surface assumptions before acting — never pick an interpretation silently; if a simpler approach exists, say so and push back
+2. Minimum code — only what was asked; no speculative flexibility, no error handling for impossible scenarios; ask "would a senior engineer say this is overcomplicated?"
+3. Surgical changes — touch only what the task requires; match existing style; remove only orphans *your* changes created, not pre-existing dead code; every changed line must trace to the request
+4. Verify before moving on — transform vague tasks into verifiable goals ("Fix bug" → "Write failing test, then make it pass"); define "done" before starting
 
 Full definitions for each command are in `.sdd/workflow.md`.
