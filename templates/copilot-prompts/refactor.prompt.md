@@ -1,0 +1,10 @@
+---
+description: Restructure without changing external behavior
+mode: agent
+---
+
+Execute the /refactor command defined in .sdd/workflow.md.
+
+Run existing tests first to establish a green baseline. Implement in small steps — tests must stay green throughout. No new features or bug fixes mixed in.
+
+Target: ${input:target}

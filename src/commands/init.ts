@@ -29,6 +29,19 @@ const FILES: Array<{ src: string; dest: string }> = [
   { src: 'claude-commands/finish.md', dest: '.claude/commands/finish.md' },
   // Cursor rules
   { src: 'cursor-rules/sdd-protocol.mdc', dest: '.cursor/rules/sdd-protocol.mdc' },
+  // GitHub Copilot slash commands
+  { src: 'copilot-prompts/bootstrap.prompt.md', dest: '.github/prompts/bootstrap.prompt.md' },
+  { src: 'copilot-prompts/ask.prompt.md', dest: '.github/prompts/ask.prompt.md' },
+  { src: 'copilot-prompts/assume.prompt.md', dest: '.github/prompts/assume.prompt.md' },
+  { src: 'copilot-prompts/bugfix.prompt.md', dest: '.github/prompts/bugfix.prompt.md' },
+  { src: 'copilot-prompts/refactor.prompt.md', dest: '.github/prompts/refactor.prompt.md' },
+  { src: 'copilot-prompts/spec-new.prompt.md', dest: '.github/prompts/spec-new.prompt.md' },
+  { src: 'copilot-prompts/spec-plan.prompt.md', dest: '.github/prompts/spec-plan.prompt.md' },
+  { src: 'copilot-prompts/spec-tasks.prompt.md', dest: '.github/prompts/spec-tasks.prompt.md' },
+  { src: 'copilot-prompts/review.prompt.md', dest: '.github/prompts/review.prompt.md' },
+  { src: 'copilot-prompts/finish.prompt.md', dest: '.github/prompts/finish.prompt.md' },
+  // GitHub Copilot always-on context
+  { src: 'copilot-instructions.md', dest: '.github/copilot-instructions.md' },
 ];
 
 export function initCommand(options: InitOptions): void {
@@ -43,6 +56,7 @@ export function initCommand(options: InitOptions): void {
   ensureDir(path.join(cwd, 'specs/_template'));
   ensureDir(path.join(cwd, '.claude/commands'));
   ensureDir(path.join(cwd, '.cursor/rules'));
+  ensureDir(path.join(cwd, '.github/prompts'));
 
   const claudeExisted = fs.existsSync(path.join(cwd, 'CLAUDE.md'));
 
@@ -60,5 +74,5 @@ export function initCommand(options: InitOptions): void {
   } else {
     console.log('  2. CLAUDE.md already exists — add a reference to .sdd/ files manually');
   }
-  console.log('  3. Slash commands are ready in Claude Code. Type / to see them.\n');
+  console.log('  3. Slash commands are ready in Claude Code, Cursor, and GitHub Copilot. Type / to see them.\n');
 }
