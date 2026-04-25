@@ -1,6 +1,6 @@
 {
   "name": "sdd-protocol",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "description": "Spec-Driven Development CLI — installs an SDD system in any project",
   "keywords": [
     "sdd",
