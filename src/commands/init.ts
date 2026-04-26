@@ -17,7 +17,7 @@ const CORE_FILES: Array<{ src: string; dest: string }> = [
   { src: 'specs/_template/3-tasks.md', dest: 'specs/_template/3-tasks.md' },
 ];
 
-type ProviderId = 'claude-code' | 'cursor' | 'windsurf' | 'copilot';
+type ProviderId = 'claude-code' | 'cursor' | 'windsurf' | 'copilot' | 'codex';
 
 interface Provider {
   name: string;
@@ -73,6 +73,34 @@ const PROVIDERS: Record<ProviderId, Provider> = {
       { src: 'copilot-instructions.md', dest: '.github/copilot-instructions.md' },
     ],
   },
+  codex: {
+    name: 'OpenAI Codex',
+    dirs: [
+      '.agents/skills/bootstrap',
+      '.agents/skills/ask',
+      '.agents/skills/assume',
+      '.agents/skills/bugfix',
+      '.agents/skills/refactor',
+      '.agents/skills/spec-new',
+      '.agents/skills/spec-plan',
+      '.agents/skills/spec-tasks',
+      '.agents/skills/review',
+      '.agents/skills/finish',
+    ],
+    files: [
+      { src: 'AGENTS.md', dest: 'AGENTS.md' },
+      { src: 'codex-skills/bootstrap/SKILL.md', dest: '.agents/skills/bootstrap/SKILL.md' },
+      { src: 'codex-skills/ask/SKILL.md', dest: '.agents/skills/ask/SKILL.md' },
+      { src: 'codex-skills/assume/SKILL.md', dest: '.agents/skills/assume/SKILL.md' },
+      { src: 'codex-skills/bugfix/SKILL.md', dest: '.agents/skills/bugfix/SKILL.md' },
+      { src: 'codex-skills/refactor/SKILL.md', dest: '.agents/skills/refactor/SKILL.md' },
+      { src: 'codex-skills/spec-new/SKILL.md', dest: '.agents/skills/spec-new/SKILL.md' },
+      { src: 'codex-skills/spec-plan/SKILL.md', dest: '.agents/skills/spec-plan/SKILL.md' },
+      { src: 'codex-skills/spec-tasks/SKILL.md', dest: '.agents/skills/spec-tasks/SKILL.md' },
+      { src: 'codex-skills/review/SKILL.md', dest: '.agents/skills/review/SKILL.md' },
+      { src: 'codex-skills/finish/SKILL.md', dest: '.agents/skills/finish/SKILL.md' },
+    ],
+  },
 };
 
 const ALL_PROVIDER_IDS = Object.keys(PROVIDERS) as ProviderId[];
@@ -117,6 +145,7 @@ export async function initCommand(options: InitOptions): Promise<void> {
   }
 
   const claudeExisted = fs.existsSync(path.join(cwd, 'CLAUDE.md'));
+  const agentsExisted = fs.existsSync(path.join(cwd, 'AGENTS.md'));
 
   for (const file of CORE_FILES) {
     copyTemplate(file.src, path.join(cwd, file.dest), force);
@@ -139,6 +168,13 @@ export async function initCommand(options: InitOptions): Promise<void> {
     console.log('  2. CLAUDE.md was created — share it with your AI agent as context');
   } else {
     console.log('  2. CLAUDE.md already exists — add a reference to .sdd/ files manually');
+  }
+  if (selectedProviders.includes('codex')) {
+    if (!agentsExisted) {
+      console.log('     AGENTS.md was created — Codex will read it automatically');
+    } else {
+      console.log('     AGENTS.md already exists — add a reference to .sdd/ files manually');
+    }
   }
   console.log(`  3. Slash commands are ready in: ${providerNames}. Type / to see them.\n`);
 }
