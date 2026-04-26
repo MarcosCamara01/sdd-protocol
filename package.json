@@ -1,5 +1,5 @@
 {
-  "name": "sdd-protocol",
+  "name": "sddx-workflow",
   "version": "0.6.0",
   "description": "Spec-Driven Development CLI — installs an SDD system in any project",
   "keywords": [
@@ -13,14 +13,14 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/MarcosCamara01/sdd-protocol.git"
+    "url": "https://github.com/MarcosCamara01/sddx-workflow.git"
   },
-  "homepage": "https://github.com/MarcosCamara01/sdd-protocol#readme",
+  "homepage": "https://github.com/MarcosCamara01/sddx-workflow#readme",
   "bugs": {
-    "url": "https://github.com/MarcosCamara01/sdd-protocol/issues"
+    "url": "https://github.com/MarcosCamara01/sddx-workflow/issues"
   },
   "bin": {
-    "sdd-protocol": "dist/cli.js"
+    "sddx-workflow": "dist/cli.js"
   },
   "files": [
     "dist/",
@@ -32,6 +32,7 @@
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
+    "@inquirer/prompts": "^8.4.2",
     "commander": "^12.1.0"
   },
   "devDependencies": {

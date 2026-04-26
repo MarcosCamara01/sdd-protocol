@@ -10,7 +10,7 @@ const pkg = createRequire(__filename)('../package.json') as { version: string };
 const program = new Command();
 
 program
-  .name('sdd-protocol')
+  .name('sddx-workflow')
   .description('Spec-Driven Development CLI')
   .version(pkg.version);
 
@@ -23,7 +23,7 @@ program
 program
   .command('add <type> <name>')
   .description('Add an SDD component to an existing installation')
-  .addHelpText('after', '\nExamples:\n  $ sdd-protocol add domain auth\n  $ sdd-protocol add domain payments')
+  .addHelpText('after', '\nExamples:\n  $ sddx-workflow add domain auth\n  $ sddx-workflow add domain payments')
   .action(addCommand);
 
 program
@@ -36,4 +36,4 @@ program
   .description('Show bootstrap status and open specs progress')
   .action(statusCommand);
 
-program.parse();
+program.parseAsync();

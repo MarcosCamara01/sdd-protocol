@@ -38,7 +38,7 @@ export function statusCommand(): void {
   const cwd = process.cwd();
 
   if (!fs.existsSync(path.join(cwd, '.sdd'))) {
-    console.error('\n  error    .sdd/ not found. Run `npx sdd-protocol init` first.\n');
+    console.error('\n  error    .sdd/ not found. Run `npx sddx-workflow init` first.\n');
     process.exit(1);
   }
 

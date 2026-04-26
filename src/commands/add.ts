@@ -25,7 +25,7 @@ export function addCommand(type: string, name: string): void {
   }
 
   if (!fs.existsSync(path.join(cwd, '.sdd'))) {
-    console.error('  error    .sdd/ not found. Run `npx sdd-protocol init` first.');
+    console.error('  error    .sdd/ not found. Run `npx sddx-workflow init` first.');
     process.exit(1);
   }
 

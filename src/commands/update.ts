@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { copyTemplate } from '../utils';
 
-const PROTOCOL_FILES: Array<{ src: string; dest: string }> = [
+const WORKFLOW_FILES: Array<{ src: string; dest: string }> = [
   { src: 'workflow.md', dest: '.sdd/workflow.md' },
   { src: 'claude-commands/bootstrap.md', dest: '.claude/commands/bootstrap.md' },
   { src: 'claude-commands/ask.md', dest: '.claude/commands/ask.md' },
@@ -14,7 +14,8 @@ const PROTOCOL_FILES: Array<{ src: string; dest: string }> = [
   { src: 'claude-commands/spec-tasks.md', dest: '.claude/commands/spec-tasks.md' },
   { src: 'claude-commands/review.md', dest: '.claude/commands/review.md' },
   { src: 'claude-commands/finish.md', dest: '.claude/commands/finish.md' },
-  { src: 'cursor-rules/sdd-protocol.mdc', dest: '.cursor/rules/sdd-protocol.mdc' },
+  { src: 'cursor-rules/sddx-workflow.mdc', dest: '.cursor/rules/sddx-workflow.mdc' },
+  { src: 'windsurf-rules/sddx-workflow.md', dest: '.windsurf/rules/sddx-workflow.md' },
   { src: 'copilot-prompts/bootstrap.prompt.md', dest: '.github/prompts/bootstrap.prompt.md' },
   { src: 'copilot-prompts/ask.prompt.md', dest: '.github/prompts/ask.prompt.md' },
   { src: 'copilot-prompts/assume.prompt.md', dest: '.github/prompts/assume.prompt.md' },
@@ -32,17 +33,17 @@ export function updateCommand(): void {
   const cwd = process.cwd();
 
   if (!fs.existsSync(path.join(cwd, '.sdd'))) {
-    console.error('\n  error    .sdd/ not found. Run `npx sdd-protocol init` first.\n');
+    console.error('\n  error    .sdd/ not found. Run `npx sddx-workflow init` first.\n');
     process.exit(1);
   }
 
   console.log('');
-  console.log('  SDD Protocol — updating protocol files');
+  console.log('  SDD Workflow — updating workflow files');
   console.log('  (project-overview.md, conventions.md, CLAUDE.md, and domains are yours — untouched)');
   console.log('');
 
   let updated = 0;
-  for (const file of PROTOCOL_FILES) {
+  for (const file of WORKFLOW_FILES) {
     const dest = path.join(cwd, file.dest);
     if (!fs.existsSync(dest)) continue;
     copyTemplate(file.src, dest, true);
