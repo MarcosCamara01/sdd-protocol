@@ -1,0 +1,23 @@
+This project uses the SDD Protocol. Before starting any task, read:
+
+1. `.sdd/workflow.md` — all commands, ceremony levels, and stop points
+2. `.sdd/project-overview.md` — what this app is, its non-goals, and domains
+3. `.sdd/conventions.md` — project-specific conventions and patterns
+
+## Workflows
+
+| Workflow | Purpose |
+|---|---|
+| `bootstrap` | Populate project context — interview or codebase scan |
+| `ask` | Research only — no code changes |
+| `assume` | List assumptions and stop for confirmation |
+| `bugfix` | Reproduce → diagnose → fix → validate |
+| `refactor` | Restructure without behavior change |
+| `spec-new` | Scaffold a spec folder |
+| `spec-plan` | Generate technical plan — stop for approval |
+| `spec-tasks` | Execute plan one task at a time, TDD-first |
+| `review` | Final audit before closing |
+| `finish` | Stage files and generate commit message |
+
+Invoke by name (e.g., "run bootstrap", "start spec-new for auth-refresh").
+Full definitions are in `.sdd/workflow.md`.

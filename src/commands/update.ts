@@ -27,6 +27,7 @@ const WORKFLOW_FILES: Array<{ src: string; dest: string }> = [
   { src: 'copilot-prompts/review.prompt.md', dest: '.github/prompts/review.prompt.md' },
   { src: 'copilot-prompts/finish.prompt.md', dest: '.github/prompts/finish.prompt.md' },
   { src: 'copilot-instructions.md', dest: '.github/copilot-instructions.md' },
+  { src: 'zed-rules/sddx-workflow.md', dest: '.rules' },
 ];
 
 export function updateCommand(): void {

@@ -17,7 +17,7 @@ const CORE_FILES: Array<{ src: string; dest: string }> = [
   { src: 'specs/_template/3-tasks.md', dest: 'specs/_template/3-tasks.md' },
 ];
 
-type ProviderId = 'claude-code' | 'cursor' | 'windsurf' | 'copilot' | 'codex';
+type ProviderId = 'claude-code' | 'cursor' | 'windsurf' | 'copilot' | 'codex' | 'gemini' | 'zed';
 
 interface Provider {
   name: string;
@@ -101,6 +101,20 @@ const PROVIDERS: Record<ProviderId, Provider> = {
       { src: 'codex-skills/finish/SKILL.md', dest: '.agents/skills/finish/SKILL.md' },
     ],
   },
+  gemini: {
+    name: 'Gemini CLI',
+    dirs: [],
+    files: [
+      { src: 'gemini.md', dest: 'GEMINI.md' },
+    ],
+  },
+  zed: {
+    name: 'Zed',
+    dirs: [],
+    files: [
+      { src: 'zed-rules/sddx-workflow.md', dest: '.rules' },
+    ],
+  },
 };
 
 const ALL_PROVIDER_IDS = Object.keys(PROVIDERS) as ProviderId[];
@@ -145,6 +159,7 @@ export async function initCommand(options: InitOptions): Promise<void> {
   }
 
   const claudeExisted = fs.existsSync(path.join(cwd, 'CLAUDE.md'));
+  const geminiExisted = fs.existsSync(path.join(cwd, 'GEMINI.md'));
   const agentsExisted = fs.existsSync(path.join(cwd, 'AGENTS.md'));
 
   for (const file of CORE_FILES) {
@@ -157,8 +172,6 @@ export async function initCommand(options: InitOptions): Promise<void> {
     }
   }
 
-  const providerNames = selectedProviders.map((id) => PROVIDERS[id].name).join(', ');
-
   console.log('');
   console.log('  Done. Next steps:');
   console.log('');
@@ -169,6 +182,13 @@ export async function initCommand(options: InitOptions): Promise<void> {
   } else {
     console.log('  2. CLAUDE.md already exists — add a reference to .sdd/ files manually');
   }
+  if (selectedProviders.includes('gemini')) {
+    if (!geminiExisted) {
+      console.log('     GEMINI.md was created — Gemini CLI will read it automatically');
+    } else {
+      console.log('     GEMINI.md already exists — add a reference to .sdd/ files manually');
+    }
+  }
   if (selectedProviders.includes('codex')) {
     if (!agentsExisted) {
       console.log('     AGENTS.md was created — Codex will read it automatically');
@@ -176,5 +196,19 @@ export async function initCommand(options: InitOptions): Promise<void> {
       console.log('     AGENTS.md already exists — add a reference to .sdd/ files manually');
     }
   }
-  console.log(`  3. Slash commands are ready in: ${providerNames}. Type / to see them.\n`);
+
+  const commandProviders: ProviderId[] = ['claude-code', 'copilot', 'codex'];
+  const withCommands = selectedProviders.filter(id => commandProviders.includes(id));
+  const rulesOnly = selectedProviders.filter(id => !commandProviders.includes(id));
+
+  if (withCommands.length > 0) {
+    const names = withCommands.map(id => PROVIDERS[id].name).join(', ');
+    console.log(`  3. Slash commands ready in: ${names}. Type / to see them.`);
+  }
+  if (rulesOnly.length > 0) {
+    const names = rulesOnly.map(id => PROVIDERS[id].name).join(', ');
+    const step = withCommands.length === 0 ? '3.' : '   ';
+    console.log(`  ${step} Context rules installed for: ${names}. The agent reads workflow.md on every task.`);
+  }
+  console.log('');
 }
