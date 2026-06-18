@@ -1,6 +1,6 @@
 {
   "name": "sddguard",
-  "version": "0.11.0",
+  "version": "0.12.0",
   "description": "Spec-Driven Development CLI — installs an SDD system in any project",
   "keywords": [
     "sdd",
