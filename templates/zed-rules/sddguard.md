@@ -3,6 +3,11 @@ This project uses the SDD Protocol. Before starting any task, read:
 1. `.sdd/workflow.md` — all commands, permissions, stop points, anti-patterns
 2. `.sdd/project-overview.md` — what this app is, its non-goals, and domains
 3. `.sdd/conventions.md` — project-specific conventions and patterns
+4. `.sdd/autonomy.md` — delegated self-approval policy for agent autonomy
+
+Before treating any stop point as delegated, read `.sdd/autonomy.md`, identify its
+`Mode`, and apply its `Operating Mode` as the default behavior. Self-approval is allowed
+only when that policy explicitly permits it; otherwise stop for human input.
 
 ## Workflows
 

@@ -45,9 +45,9 @@ Two command surfaces:
   `/spec-plan`, `/spec-tasks`, `/verify`, `/finish`.
 
 The agent reads `.sdd/workflow.md` before every task. That file defines the commands,
-per-phase permissions, and **non-negotiable stop points**. The agent
-drafts plans and reports; the human approves structural decisions. Each feature lives
-in `specs/<feature>/` as Markdown you can read and diff.
+per-phase permissions, and **non-negotiable stop points**. `.sdd/autonomy.md` defines
+which approvals, if any, are delegated to the agent. Each feature lives in
+`specs/<feature>/` as Markdown you can read and diff.
 
 ---
 
@@ -170,6 +170,8 @@ for their report outputs.
 npx sddguard init                  # install protocol (prompts for agents)
 npx sddguard init --provider codex # install only one provider integration
 npx sddguard init --provider codex,gemini
+npx sddguard init --profile agent  # install a delegated autonomy policy
+npx sddguard init --profile autonomous
 npx sddguard init --all            # install every provider integration
 npx sddguard init --existing       # brownfield: next steps start with /scan
 npx sddguard init --force          # refresh protocol files, preserving project context
@@ -189,6 +191,32 @@ npx sddguard doctor                # validate install health + stale files
 > **Non-TTY default:** When stdout is not a TTY (CI, piped scripts), `init`
 > without flags installs every provider - equivalent to `--all`. Pass
 > `--provider` explicitly to limit.
+
+### Autonomy profiles
+
+`init` also installs `.sdd/autonomy.md`, a project-owned policy that tells agents
+whether stop-point approval is human-only or delegated.
+Each policy includes an `Operating Mode` section that defines the agent's default
+behavior for that profile.
+
+| Profile | Use when | Behavior |
+|---|---|---|
+| `guided` | You want the original workflow | Default. The agent asks before approving SDD stop points. |
+| `agent` | You want low-risk agent work to continue | The agent continues only for low-risk, bounded, test-backed work. |
+| `autonomous` | You want routine SDD work to run with minimal interruption | The agent continues through routine SDD phases unless a hard stop applies. |
+
+Examples:
+
+```bash
+npx sddguard init --profile guided
+npx sddguard init --profile agent
+npx sddguard init --profile autonomous
+```
+
+This is not an agent runner. There is still no daemon, scheduler, background process,
+or automatic execution of AI tool commands. The profile only changes the written policy
+that an obedient agent reads before deciding whether a stop point has delegated
+self-approval.
 
 Everything is **copied locally** — your repo owns the files, no runtime dependency,
 edit freely.
@@ -211,8 +239,8 @@ commands in older installs.
 | Check installation health | `sddguard doctor` |
 
 `update` and `init --force` never touch `project-overview.md`, `conventions.md`,
-`domains/`, or provider entrypoints/rules such as `AGENTS.md`, `CLAUDE.md`,
-`GEMINI.md`, Copilot instructions, Cursor/Windsurf rules, and `.rules`.
+`.sdd/autonomy.md`, `domains/`, or provider entrypoints/rules such as `AGENTS.md`,
+`CLAUDE.md`, `GEMINI.md`, Copilot instructions, Cursor/Windsurf rules, and `.rules`.
 Before `init --force`, review local changes to provider command files.
 
 ---
@@ -253,7 +281,9 @@ Per selected agent, command files are also installed (see Provider support).
 
 ## How approval works
 
-The agent may draft plans and reports, but structural decisions stay with the human.
+The agent may draft plans and reports. By default, structural decisions stay with the
+human. If `.sdd/autonomy.md` delegates a specific approval, the agent may self-approve
+that stop point and must record the decision in the same artifact a human would approve.
 
 - `/spec-plan` stops before code. You approve the plan before `/spec-tasks`.
 - `/spec-tasks` can edit code and tests, but not approved requirements or plan files.
@@ -264,6 +294,10 @@ The agent may draft plans and reports, but structural decisions stay with the hu
   `review-report.md`.
 - `/finish` may proceed only after `verify-report.md` is complete with `Result: PASS`
   and `review-report.md` is non-blocking (`Result: PASS` or `Result: FOLLOW_UPS`).
+
+Delegated self-approval never overrides hard stops. Ambiguity, unresolved gaps, pending
+CRs, failing tests, unlisted scope, destructive changes, high-risk domains, and
+release/publish actions still follow `.sdd/workflow.md` and `.sdd/autonomy.md`.
 
 ---
 
@@ -321,7 +355,8 @@ Enforced by every command:
 
 - **Zero runtime dependency** — files copied locally, no server, daemon, or watcher.
 - **npx-first** — one command, no Python/uv/pipx.
-- **The human decides, the agent executes** — no automated structural decisions.
+- **Delegation is explicit** — structural decisions are human-approved unless
+  `.sdd/autonomy.md` clearly delegates them.
 - **Files you can read** — pure Markdown, no databases, no binary formats.
 
 ---

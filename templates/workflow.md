@@ -17,6 +17,24 @@ These rules apply to every command. They are not suggestions.
 
 ---
 
+## Autonomy Policy
+
+Read `.sdd/autonomy.md`, identify its `Mode`, and apply its `Operating Mode` before
+deciding whether a stop point requires human approval or has been delegated to the
+agent. Delegated self-approval is allowed only when that policy explicitly permits it.
+If the policy does not clearly allow self-approval for the current situation, stop and
+ask.
+
+Delegated approvals must leave the same artifact trail as human approvals: update the
+plan approval marker, CR status, gap resolution, review report, or finish summary with
+a note that the decision was self-approved per `.sdd/autonomy.md`.
+
+Hard stops still stop. Ambiguity, contradiction, unresolved gaps, pending CRs, failing
+tests, unlisted scope, destructive changes, new dependencies, high-risk domains, and
+release/publish actions require the handling defined by this workflow and the policy.
+
+---
+
 ## Commands
 
 ### /bootstrap

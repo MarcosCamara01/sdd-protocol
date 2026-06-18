@@ -9,6 +9,10 @@ export type ProviderId =
   | 'gemini'
   | 'zed';
 
+export const AUTONOMY_PROFILES = ['guided', 'agent', 'autonomous'] as const;
+
+export type AutonomyProfile = (typeof AUTONOMY_PROFILES)[number];
+
 export interface InstallFile {
   src: string;
   dest: string;
@@ -19,6 +23,14 @@ export interface Provider {
   dirs: string[];
   files: InstallFile[];
 }
+
+export const AUTONOMY_POLICY_DEST = '.sdd/autonomy.md';
+
+export const AUTONOMY_PROFILE_FILES: Record<AutonomyProfile, InstallFile> = {
+  guided: { src: 'autonomy/guided.md', dest: AUTONOMY_POLICY_DEST },
+  agent: { src: 'autonomy/agent.md', dest: AUTONOMY_POLICY_DEST },
+  autonomous: { src: 'autonomy/autonomous.md', dest: AUTONOMY_POLICY_DEST },
+};
 
 export const CORE_FILES: InstallFile[] = [
   { src: 'workflow.md', dest: '.sdd/workflow.md' },
@@ -37,7 +49,11 @@ export const CORE_FILES: InstallFile[] = [
   { src: 'specs/_template/2c-research.md', dest: 'specs/_template/2c-research.md' },
 ];
 
-export const USER_OWNED_CORE_FILES = new Set(['.sdd/project-overview.md', '.sdd/conventions.md']);
+export const USER_OWNED_CORE_FILES = new Set([
+  '.sdd/project-overview.md',
+  '.sdd/conventions.md',
+  AUTONOMY_POLICY_DEST,
+]);
 
 export const USER_OWNED_PROVIDER_FILES = new Set([
   'AGENTS.md',

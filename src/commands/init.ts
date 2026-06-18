@@ -2,6 +2,9 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {
   ALL_PROVIDER_IDS,
+  AUTONOMY_PROFILE_FILES,
+  AUTONOMY_PROFILES,
+  type AutonomyProfile,
   COMMAND_PROVIDER_IDS,
   CORE_FILES,
   PROVIDERS,
@@ -16,6 +19,7 @@ interface InitOptions {
   force?: boolean;
   existing?: boolean;
   provider?: string;
+  profile?: string;
   all?: boolean;
 }
 
@@ -66,6 +70,18 @@ function formatList(items: string[]): string {
   return items.length > 0 ? items.join(', ') : 'none';
 }
 
+function selectAutonomyProfile(value?: string): AutonomyProfile {
+  if (!value) return 'guided';
+
+  if (AUTONOMY_PROFILES.includes(value as AutonomyProfile)) {
+    return value as AutonomyProfile;
+  }
+
+  console.error(`\n  error    Unknown autonomy profile: ${value}`);
+  console.error(`  valid    ${AUTONOMY_PROFILES.join(', ')}\n`);
+  process.exit(1);
+}
+
 export async function initCommand(options: InitOptions): Promise<void> {
   const cwd = process.cwd();
   const { force, existing } = options;
@@ -74,6 +90,7 @@ export async function initCommand(options: InitOptions): Promise<void> {
   console.log(`  SDD Workflow — initializing${existing ? ' (existing project mode)' : ''}`);
   console.log('');
 
+  const autonomyProfile = selectAutonomyProfile(options.profile);
   const selectedProviders = await selectProviders(options);
 
   console.log('');
@@ -96,6 +113,10 @@ export async function initCommand(options: InitOptions): Promise<void> {
     copyTemplate(file.src, path.join(cwd, file.dest), shouldForce);
   }
 
+  const autonomyFile = AUTONOMY_PROFILE_FILES[autonomyProfile];
+  const shouldForceAutonomy = force && !USER_OWNED_CORE_FILES.has(autonomyFile.dest);
+  copyTemplate(autonomyFile.src, path.join(cwd, autonomyFile.dest), shouldForceAutonomy);
+
   for (const id of selectedProviders) {
     for (const file of PROVIDERS[id].files) {
       const shouldForce = force && !USER_OWNED_PROVIDER_FILES.has(file.dest);
@@ -111,8 +132,9 @@ export async function initCommand(options: InitOptions): Promise<void> {
   console.log('  SDD Workflow initialized');
   console.log('');
   console.log(`  Providers: ${formatList(providerNames)}`);
+  console.log(`  Profile:   ${autonomyProfile}`);
   console.log(
-    `  Core:      .sdd/workflow.md, .sdd/project-overview.md, .sdd/conventions.md, specs/_template/`,
+    `  Core:      .sdd/workflow.md, .sdd/autonomy.md, .sdd/project-overview.md, .sdd/conventions.md, specs/_template/`,
   );
   if (commandProviders.length > 0) {
     const names = commandProviders.map((id) => PROVIDERS[id].name);

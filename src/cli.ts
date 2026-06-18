@@ -26,6 +26,10 @@ program
     '--provider <ids>',
     'Comma-separated providers to install (claude-code,cursor,windsurf,copilot,codex,gemini,zed)',
   )
+  .option(
+    '--profile <profile>',
+    'Autonomy profile to install (guided,agent,autonomous). Defaults to guided.',
+  )
   .option('--all', 'Install all provider integrations without prompting')
   .addHelpText(
     'after',

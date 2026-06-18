@@ -11,12 +11,57 @@ const {
   writeFile,
 } = require('./helpers');
 
+const autonomyModeExpectations = {
+  guided: {
+    must: [
+      /^Mode: guided$/m,
+      /## Operating Mode/,
+      /Default stance: ask before approving SDD stop points/,
+      /Do not mark artifacts as self-approved/,
+      /Human Approval Required/,
+    ],
+    mustNot: [/Self-approved by agent per \.sdd\/autonomy\.md \(Mode: guided\)/],
+  },
+  agent: {
+    must: [
+      /^Mode: agent$/m,
+      /## Operating Mode/,
+      /Default stance: continue only for low-risk, bounded, test-backed work/,
+      /Classify each stop point before acting/,
+      /Self-approved by agent per \.sdd\/autonomy\.md \(Mode: agent\)/,
+    ],
+    mustNot: [/Default stance: continue through routine SDD phases without waiting/],
+  },
+  autonomous: {
+    must: [
+      /^Mode: autonomous$/m,
+      /## Operating Mode/,
+      /Default stance: continue through routine SDD phases without waiting/,
+      /Self-approve routine approvals when no hard stop applies/,
+      /Self-approved by agent per \.sdd\/autonomy\.md \(Mode: autonomous\)/,
+    ],
+    mustNot: [/Do not mark artifacts as self-approved/],
+  },
+};
+
+function assertAutonomyMode(policy, profile) {
+  const expectations = autonomyModeExpectations[profile];
+  for (const pattern of expectations.must) {
+    assert.match(policy, pattern, `${profile} policy missing ${pattern}`);
+  }
+  for (const pattern of expectations.mustNot) {
+    assert.doesNotMatch(policy, pattern, `${profile} policy should not match ${pattern}`);
+  }
+}
+
 test('init --provider codex installs only core and Codex provider files', () => {
   const root = makeTempDir('sddguard-init-codex-');
   const result = expectCliOk(['init', '--provider', 'codex'], { cwd: root });
 
   assert.match(result.stdout, /Providers: OpenAI Codex/);
   assert.equal(exists(root, '.sdd/workflow.md'), true);
+  assert.equal(exists(root, '.sdd/autonomy.md'), true);
+  assertAutonomyMode(readFile(root, '.sdd/autonomy.md'), 'guided');
   assert.equal(exists(root, '.sdd/project-overview.md'), true);
   assert.equal(exists(root, '.sdd/conventions.md'), true);
   assert.equal(exists(root, 'specs/_template/review-report.md'), true);
@@ -24,6 +69,20 @@ test('init --provider codex installs only core and Codex provider files', () => 
   assert.equal(exists(root, '.agents/skills/bugfix/SKILL.md'), true);
   assert.equal(exists(root, 'CLAUDE.md'), false);
   assert.equal(exists(root, '.claude/commands/bugfix.md'), false);
+});
+
+test('init --profile installs behavior-specific autonomy policies', () => {
+  const profiles = ['guided', 'agent', 'autonomous'];
+
+  for (const profile of profiles) {
+    const root = makeTempDir(`sddguard-init-${profile}-`);
+    const result = expectCliOk(['init', '--provider', 'codex', '--profile', profile], {
+      cwd: root,
+    });
+
+    assert.match(result.stdout, new RegExp(`Profile:\\s+${profile}`));
+    assertAutonomyMode(readFile(root, '.sdd/autonomy.md'), profile);
+  }
 });
 
 test('init --all --existing installs every provider surface and brownfield next steps', () => {
@@ -56,25 +115,36 @@ test('init rejects invalid provider options', () => {
   assert.match(conflict.output, /Use either --provider or --all/);
 });
 
+test('init rejects invalid autonomy profiles', () => {
+  const root = makeTempDir('sddguard-init-invalid-profile-');
+  const result = expectCliFail(['init', '--profile', 'spaceship'], { cwd: root });
+
+  assert.match(result.output, /Unknown autonomy profile: spaceship/);
+  assert.match(result.output, /valid\s+guided, agent, autonomous/);
+});
+
 test('init without force skips existing files, while force preserves project context and refreshes workflow/provider files', () => {
   const root = makeTempDir('sddguard-init-force-');
   expectCliOk(['init', '--provider', 'codex'], { cwd: root });
 
   writeFile(root, '.sdd/project-overview.md', 'CUSTOM PROJECT CONTEXT\n');
   writeFile(root, '.sdd/conventions.md', 'CUSTOM CONVENTIONS\n');
+  writeFile(root, '.sdd/autonomy.md', 'CUSTOM AUTONOMY POLICY\n');
   writeFile(root, '.sdd/workflow.md', 'CUSTOM WORKFLOW\n');
   writeFile(root, '.agents/skills/bugfix/SKILL.md', 'CUSTOM BUGFIX SKILL\n');
 
   const skipped = expectCliOk(['init', '--provider', 'codex'], { cwd: root });
-  assert.match(skipped.stdout, /skip\s+\.sdd\/workflow\.md/);
+  assert.match(skipped.stdout, /skip\s+\.sdd[\\/]workflow\.md/);
   assert.equal(readFile(root, '.sdd/workflow.md'), 'CUSTOM WORKFLOW\n');
   assert.equal(readFile(root, '.agents/skills/bugfix/SKILL.md'), 'CUSTOM BUGFIX SKILL\n');
 
   const forced = expectCliOk(['init', '--force', '--provider', 'codex'], { cwd: root });
-  assert.match(forced.stdout, /skip\s+\.sdd\/project-overview\.md/);
-  assert.match(forced.stdout, /skip\s+\.sdd\/conventions\.md/);
+  assert.match(forced.stdout, /skip\s+\.sdd[\\/]project-overview\.md/);
+  assert.match(forced.stdout, /skip\s+\.sdd[\\/]conventions\.md/);
+  assert.match(forced.stdout, /skip\s+\.sdd[\\/]autonomy\.md/);
   assert.equal(readFile(root, '.sdd/project-overview.md'), 'CUSTOM PROJECT CONTEXT\n');
   assert.equal(readFile(root, '.sdd/conventions.md'), 'CUSTOM CONVENTIONS\n');
+  assert.equal(readFile(root, '.sdd/autonomy.md'), 'CUSTOM AUTONOMY POLICY\n');
   assert.notEqual(readFile(root, '.sdd/workflow.md'), 'CUSTOM WORKFLOW\n');
   assert.notEqual(readFile(root, '.agents/skills/bugfix/SKILL.md'), 'CUSTOM BUGFIX SKILL\n');
 });
@@ -124,6 +194,7 @@ test('update detects drift, repairs existing files, and does not create uninstal
 
   writeFile(root, '.sdd/project-overview.md', 'CUSTOM PROJECT CONTEXT\n');
   writeFile(root, '.sdd/conventions.md', 'CUSTOM CONVENTIONS\n');
+  writeFile(root, '.sdd/autonomy.md', 'CUSTOM AUTONOMY POLICY\n');
   writeFile(root, '.sdd/domains/auth.md', 'CUSTOM AUTH DOMAIN\n');
   writeFile(root, '.sdd/workflow.md', 'DRIFTED WORKFLOW\n');
   writeFile(root, 'AGENTS.md', 'CUSTOM CODEX ENTRYPOINT\n');
@@ -131,7 +202,7 @@ test('update detects drift, repairs existing files, and does not create uninstal
   const check = expectCliFail(['update', '--check'], { cwd: root });
   assert.match(check.stdout, /outdated\s+1 outdated/);
   assert.match(check.stdout, /1 preserved/);
-  assert.match(check.stdout, /update\s+\.sdd\/workflow\.md/);
+  assert.match(check.stdout, /update\s+\.sdd[\\/]workflow\.md/);
   assert.doesNotMatch(check.stdout, /update\s+AGENTS\.md/);
 
   const update = expectCliOk(['update'], { cwd: root });
@@ -142,6 +213,7 @@ test('update detects drift, repairs existing files, and does not create uninstal
   assert.match(clean.stdout, /ok\s+0 outdated/);
   assert.equal(readFile(root, '.sdd/project-overview.md'), 'CUSTOM PROJECT CONTEXT\n');
   assert.equal(readFile(root, '.sdd/conventions.md'), 'CUSTOM CONVENTIONS\n');
+  assert.equal(readFile(root, '.sdd/autonomy.md'), 'CUSTOM AUTONOMY POLICY\n');
   assert.equal(readFile(root, '.sdd/domains/auth.md'), 'CUSTOM AUTH DOMAIN\n');
   assert.equal(readFile(root, 'AGENTS.md'), 'CUSTOM CODEX ENTRYPOINT\n');
   assert.equal(exists(root, '.claude/commands/bugfix.md'), false);
@@ -153,13 +225,13 @@ test('add domain creates built-in domains, skips existing files, and rejects inv
 
   for (const domain of ['auth', 'payments', 'storage', 'email']) {
     const added = expectCliOk(['add', 'domain', domain], { cwd: root });
-    assert.match(added.stdout, new RegExp(`create\\s+\\.sdd/domains/${domain}\\.md`));
+    assert.match(added.stdout, new RegExp(`create\\s+\\.sdd[\\\\/]domains[\\\\/]${domain}\\.md`));
     assert.equal(exists(root, `.sdd/domains/${domain}.md`), true);
   }
 
   writeFile(root, '.sdd/domains/auth.md', 'CUSTOM AUTH DOMAIN\n');
   const skipped = expectCliOk(['add', 'domain', 'auth'], { cwd: root });
-  assert.match(skipped.stdout, /skip\s+\.sdd\/domains\/auth\.md/);
+  assert.match(skipped.stdout, /skip\s+\.sdd[\\/]domains[\\/]auth\.md/);
   assert.equal(readFile(root, '.sdd/domains/auth.md'), 'CUSTOM AUTH DOMAIN\n');
 
   const invalidDomain = expectCliFail(['add', 'domain', 'analytics'], { cwd: root });
@@ -179,6 +251,12 @@ test('doctor reports healthy installs, missing installs, missing core files, and
   expectCliOk(['init', '--provider', 'codex'], { cwd: healthyRoot });
   const healthy = expectCliOk(['doctor'], { cwd: healthyRoot });
   assert.match(healthy.stdout, /installation looks healthy/);
+
+  fs.rmSync(path.join(healthyRoot, '.sdd/autonomy.md'));
+  const missingPolicy = expectCliFail(['doctor'], { cwd: healthyRoot });
+  assert.match(missingPolicy.stdout, /core files\s+1 missing/);
+  assert.match(missingPolicy.stdout, /Missing core file: \.sdd\/autonomy\.md/);
+  expectCliOk(['init', '--force', '--provider', 'codex'], { cwd: healthyRoot });
 
   fs.rmSync(path.join(healthyRoot, 'specs/_template/2-plan.md'));
   const missingCore = expectCliFail(['doctor'], { cwd: healthyRoot });

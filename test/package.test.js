@@ -2,12 +2,15 @@ const { spawnSync } = require('node:child_process');
 const { test } = require('node:test');
 const { assert, repoRoot } = require('./helpers');
 
-function npmCommand() {
-  return process.platform === 'win32' ? 'npm.cmd' : 'npm';
+function npmPackCommand() {
+  return process.platform === 'win32'
+    ? { command: process.env.ComSpec ?? 'cmd.exe', args: ['/d', '/s', '/c', 'npm'] }
+    : { command: 'npm', args: [] };
 }
 
 test('published package contains only the runtime CLI and templates', () => {
-  const result = spawnSync(npmCommand(), ['pack', '--dry-run', '--json'], {
+  const npm = npmPackCommand();
+  const result = spawnSync(npm.command, [...npm.args, 'pack', '--dry-run', '--json'], {
     cwd: repoRoot,
     encoding: 'utf8',
   });
@@ -29,6 +32,9 @@ test('published package contains only the runtime CLI and templates', () => {
     'templates/specs/_template/3-tasks.md',
     'templates/specs/_template/verify-report.md',
     'templates/specs/_template/review-report.md',
+    'templates/autonomy/guided.md',
+    'templates/autonomy/agent.md',
+    'templates/autonomy/autonomous.md',
     'templates/codex-skills/bugfix/SKILL.md',
     'templates/claude-commands/bugfix.md',
     'templates/copilot-prompts/bugfix.prompt.md',

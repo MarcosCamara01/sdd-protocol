@@ -83,6 +83,26 @@ test('entry and rule files mention every protocol command', () => {
   }
 });
 
+test('entry and rule files point agents at autonomy policy', () => {
+  const entryFiles = [
+    'templates/workflow.md',
+    'templates/AGENTS.md',
+    'templates/CLAUDE.md',
+    'templates/gemini.md',
+    'templates/copilot-instructions.md',
+    'templates/cursor-rules/sddguard.mdc',
+    'templates/windsurf-rules/sddguard.md',
+    'templates/zed-rules/sddguard.md',
+  ];
+
+  for (const file of entryFiles) {
+    const content = fs.readFileSync(path.join(repoRoot, file), 'utf8');
+    assert.match(content, /\.sdd\/autonomy\.md/, `${file} does not mention autonomy policy`);
+    assert.match(content, /delegated|self-approval/i, `${file} does not describe delegation`);
+    assert.match(content, /Operating Mode/, `${file} does not require applying operating mode`);
+  }
+});
+
 test('plan template defines structured components for exact conflict checks', () => {
   const plan = fs.readFileSync(path.join(repoRoot, 'templates/specs/_template/2-plan.md'), 'utf8');
   const workflow = fs.readFileSync(path.join(repoRoot, 'templates/workflow.md'), 'utf8');

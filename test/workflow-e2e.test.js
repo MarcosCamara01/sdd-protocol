@@ -168,7 +168,7 @@ test('realistic mini project workflow artifacts drive status, doctor, and update
   writeFile(root, '.sdd/workflow.md', '# Drifted Workflow\n');
   const drifted = expectCliFail(['update', '--check'], { cwd: root });
   assert.match(drifted.stdout, /outdated\s+1 outdated/);
-  assert.match(drifted.stdout, /update\s+\.sdd\/workflow\.md/);
+  assert.match(drifted.stdout, /update\s+\.sdd[\\/]workflow\.md/);
 
   expectCliOk(['update'], { cwd: root });
   const repaired = expectCliOk(['update', '--check'], { cwd: root });

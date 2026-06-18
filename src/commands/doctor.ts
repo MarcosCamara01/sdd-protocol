@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { CORE_FILES, PROVIDERS, type ProviderId } from '../providers';
+import { AUTONOMY_POLICY_DEST, CORE_FILES, PROVIDERS, type ProviderId } from '../providers';
 
 const WORKFLOW_PATH = '.sdd/workflow.md';
 const WORKFLOW_MARKER = '# SDD Protocol';
@@ -59,7 +59,9 @@ export function doctorCommand(): void {
     process.exit(1);
   }
 
-  const missingCore = CORE_FILES.map((file) => file.dest).filter((dest) => !exists(cwd, dest));
+  const missingCore = [...CORE_FILES.map((file) => file.dest), AUTONOMY_POLICY_DEST].filter(
+    (dest) => !exists(cwd, dest),
+  );
 
   console.log(
     `  core files    ${missingCore.length === 0 ? 'ok' : `${missingCore.length} missing`}`,
